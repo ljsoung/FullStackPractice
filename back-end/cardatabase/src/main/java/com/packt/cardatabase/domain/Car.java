@@ -1,9 +1,9 @@
 package com.packt.cardatabase.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Car {
@@ -24,9 +24,16 @@ public class Car {
 
     private int price;
 
+    @ManyToOne(fetch = FetchType.LAZY) // 차는 다양하나 주인은 하나
+    @JoinColumn(name = "owner")
+    private Owner owner;
+
+    @ManyToMany(mappedBy = "cars")
+    private Set<Owner> owners = new HashSet<Owner>();
+
     public Car() {}
 
-    public Car(String brand, String model, String color, String registrationNumber, int modelYear, int price) {
+    public Car(String brand, String model, String color, String registrationNumber, int modelYear, int price, Owner owner) {
         super();
         this.brand = brand;
         this.model = model;
@@ -34,6 +41,7 @@ public class Car {
         this.registrationNumber = registrationNumber;
         this.modelYear = modelYear;
         this.price = price;
+        this.owner = owner;
     }
 
     public Long getId() {
@@ -90,5 +98,21 @@ public class Car {
 
     public void setPrice(int price) {
         this.price = price;
+    }
+
+    public Owner getOwner() {
+        return owner;
+    }
+
+    public void setOwner(Owner owner) {
+        this.owner = owner;
+    }
+
+    public Set<Owner> getOwners() {
+        return owners;
+    }
+
+    public void setOwners(Set<Owner> owners) {
+        this.owners = owners;
     }
 }
