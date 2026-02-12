@@ -1,9 +1,6 @@
 package com.packt.cardatabase;
 
-import com.packt.cardatabase.domain.Car;
-import com.packt.cardatabase.domain.CarRepository;
-import com.packt.cardatabase.domain.Owner;
-import com.packt.cardatabase.domain.OwnerRepository;
+import com.packt.cardatabase.domain.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
@@ -22,10 +19,12 @@ public class CardatabaseApplication implements CommandLineRunner { // 애플리�
     // 의존성 주입
     private final CarRepository repository;
     private final OwnerRepository orepository;
+    private final AppUserRepository urepository;
 
-    public CardatabaseApplication(CarRepository repository, OwnerRepository orepository) {
+    public CardatabaseApplication(CarRepository repository, OwnerRepository orepository, AppUserRepository urepository) {
         this.repository = repository;
         this.orepository = orepository;
+        this.urepository = urepository;
     }
 
     public static void main(String[] args) {
@@ -46,5 +45,10 @@ public class CardatabaseApplication implements CommandLineRunner { // 애플리�
         for (Car car : repository.findAll()) {
             logger.info("brand: {}, model: {}", car.getBrand(), car.getModel());
         }
+        // 사용자명 : user, 비밀번호 : user
+        urepository.save(new AppUser("user", "$2a$12$m93tWpeik6mMqXB/OtF3qerXUy1mfSedcxDKeIzMfo0ycMZTQ.7bG", "USER"));
+
+        // 사용자명 : admin, 비밀번호 : admin
+        urepository.save(new AppUser("admin", "$2a$12$843d6eT8.p02IU0iA8kZReHqz..miTeDk.bfT6MQgtpMkDPR2erJ2", "ADMIN"));
     }
 }
