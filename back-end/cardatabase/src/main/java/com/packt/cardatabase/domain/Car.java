@@ -9,7 +9,7 @@ import java.util.Set;
 public class Car {
 
     @Id // 기본키 정의
-    @GeneratedValue(strategy = GenerationType.AUTO) // 자동 ID 생성
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // 자동 ID 생성
     private Long id;
 
     private String brand;
