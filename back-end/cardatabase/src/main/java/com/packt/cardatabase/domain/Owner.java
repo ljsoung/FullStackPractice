@@ -1,12 +1,13 @@
 package com.packt.cardatabase.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // hibernate가 Lazy하기 위해 만드는 필드, 제외해야 무한 루프가 안걸림 (Car -> Owner -> Car ...)
 public class Owner {
 
     @Id
@@ -17,12 +18,9 @@ public class Owner {
 
     private String lastName;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "car_owner", joinColumns = {
-            @JoinColumn(name = "ownerid")},
-    inverseJoinColumns = {
-            @JoinColumn(name = "id")})
-    private Set<Car> cars = new HashSet<Car>();
+    @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "owner")
+    private List<Car> cars;
 
     public Owner() {
     }
@@ -53,11 +51,11 @@ public class Owner {
         this.lastName = lastName;
     }
 
-    public Set<Car> getCars() {
+    public List<Car> getCars() {
         return cars;
     }
 
-    public void setCars(Set<Car> cars) {
+    public void setCars(List<Car> cars) {
         this.cars = cars;
     }
 }
