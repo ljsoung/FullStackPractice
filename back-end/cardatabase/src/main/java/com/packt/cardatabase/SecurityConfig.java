@@ -35,10 +35,12 @@ public class SecurityConfig {
 
     private final UserDetailsServiceImpl  userDetailsService;
     private final AuthenticationFilter authenticationFilter;
+    private final AuthEntryPoint exceptionHandler;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthenticationFilter authenticationFilter) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthenticationFilter authenticationFilter, AuthEntryPoint exceptionHandler) {
         this.userDetailsService = userDetailsService;
         this.authenticationFilter = authenticationFilter;
+        this.exceptionHandler = exceptionHandler;
     }
 
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -59,7 +61,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests.requestMatchers(HttpMethod.POST, // 3
                                 "/login").permitAll().anyRequest().authenticated()) // 4
-                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // 기본 로그인 필터 전에 내 JWT 필터를 끼워 넣어라
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class) // 기본 로그인 필터 전에 내 JWT 필터를 끼워 넣어라
+                .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler)); //Exception 터지면 이걸로 Handling하겠다.
         return http.build();
     }
 
