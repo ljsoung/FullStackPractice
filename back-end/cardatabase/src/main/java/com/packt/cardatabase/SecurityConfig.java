@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,6 +18,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity // 기본 웹 보호 구성 해제, 해당 클래스에서 자체 구성을 정의
@@ -56,6 +62,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.csrf((csrf) -> csrf.disable()) // 1
+                .cors(Customizer.withDefaults()) // CORS 활성화
                 .sessionManagement((sessionManagement) -> sessionManagement.
                         sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 2
                 .authorizeHttpRequests((authorizeHttpRequests) ->
@@ -74,5 +81,25 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
+    }
+    // CORS -> 다른 출처 요청을 허용할지 말지 서버가 결정하는 규칙
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() { // CORS 정책을 등록하는 Bean
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(); // 어떤 URL에 어떤 CORS 규칙을 적용할 건지 정하는 곳
+        CorsConfiguration config = new CorsConfiguration(); // CORS 규칙을 담는 설정 객체
+        config.setAllowedOrigins(Arrays.asList("*")); // 모든 출처 허용
+
+        /*
+        // 출처를 명시적으로 정의하려명 다음과 같은 방법으로
+        config.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+         */
+
+        config.setAllowedMethods(Arrays.asList("*")); // GET, POST, PUT 등등... 모두 허용
+        config.setAllowedHeaders(Arrays.asList("*")); // Authorization, Content-type 등등... 모든 요청 헤더 허용
+        config.setAllowCredentials(false); // 자격 증명 허용 여부 (쿠키 허용 X, 세션 기반 인증 X)
+        config.applyPermitDefaultValues(); // Spring 기본값 허용
+
+        source.registerCorsConfiguration("/**", config); // 모든 경로에 적용
+        return source;
     }
 }
