@@ -35,8 +35,18 @@ public class JwtService {
     // 토큰을 확인하고 사용자 이름을 가져옴
     // JWT 검증 단계
     public String getAuthUser(HttpServletRequest request){
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+
+        // 1) 헤더 없으면 패스
+        if (header == null) return null;
+
+        // 2) Bearer 토큰이 아니면 패스
+        if (!header.startsWith(PREFIX)) return null;
+
+        // 3) 토큰만 추출
         // 헤더에서 토큰 가져오기 -> Authorization / 헤더 값 읽기 EX. Bearer eyJhbGciOiJIUzI1NiIs...
-        String token = request.getHeader(HttpHeaders.AUTHORIZATION);
+        String token = header.substring(PREFIX.length()).trim();
+
         if(token != null){ // 토큰이 아예 없으면 인증 불가
             String user = Jwts.parserBuilder() // JWT를 해석할 객체 생성
                     .setSigningKey(key) // key로 검증함, 외부에서 조작 시 Signature 불일치

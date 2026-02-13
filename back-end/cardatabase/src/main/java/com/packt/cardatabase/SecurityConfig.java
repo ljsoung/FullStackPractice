@@ -16,6 +16,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity // 기본 웹 보호 구성 해제, 해당 클래스에서 자체 구성을 정의
@@ -33,9 +34,11 @@ public class SecurityConfig {
      */
 
     private final UserDetailsServiceImpl  userDetailsService;
+    private final AuthenticationFilter authenticationFilter;
 
-    public SecurityConfig(UserDetailsServiceImpl userDetailsService) {
+    public SecurityConfig(UserDetailsServiceImpl userDetailsService, AuthenticationFilter authenticationFilter) {
         this.userDetailsService = userDetailsService;
+        this.authenticationFilter = authenticationFilter;
     }
 
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -55,8 +58,8 @@ public class SecurityConfig {
                         sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // 2
                 .authorizeHttpRequests((authorizeHttpRequests) ->
                         authorizeHttpRequests.requestMatchers(HttpMethod.POST, // 3
-                                "/login").permitAll().anyRequest().authenticated()); // 4
-
+                                "/login").permitAll().anyRequest().authenticated()) // 4
+                .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class); // 기본 로그인 필터 전에 내 JWT 필터를 끼워 넣어라
         return http.build();
     }
 
