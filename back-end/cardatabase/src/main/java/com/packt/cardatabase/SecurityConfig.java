@@ -54,6 +54,7 @@ public class SecurityConfig {
     }
 
     /*
+    /*
     1. JWT니까 csrf 끈다
     2. JWT니까 stateless
     3. 로그인만 열어둔다
@@ -61,6 +62,10 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf((csrf) -> csrf.disable()).cors(Customizer.withDefaults())
+                .authorizeHttpRequests((authorizeHttpRequests) ->
+                        authorizeHttpRequests.anyRequest().permitAll());
+        /*
         http.csrf((csrf) -> csrf.disable()) // 1
                 .cors(Customizer.withDefaults()) // CORS 활성화
                 .sessionManagement((sessionManagement) -> sessionManagement.
@@ -70,8 +75,10 @@ public class SecurityConfig {
                                 "/login").permitAll().anyRequest().authenticated()) // 4
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class) // 기본 로그인 필터 전에 내 JWT 필터를 끼워 넣어라
                 .exceptionHandling((exceptionHandling) -> exceptionHandling.authenticationEntryPoint(exceptionHandler)); //Exception 터지면 이걸로 Handling하겠다.
+         */
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder(){
